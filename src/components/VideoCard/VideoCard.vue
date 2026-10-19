@@ -15,6 +15,7 @@ import { calcCurrentTime, calcTimeSince, numFormatter } from '~/utils/dataFormat
 import { getCSRF, removeHttpFromUrl } from '~/utils/main'
 
 import Tooltip from '../Tooltip.vue'
+import { claimVideoPreview, releaseVideoPreview, unloadVideoPreview } from './previewPlayback'
 import type { Video } from './types'
 import { getCurrentTime, getCurrentVideoUrl } from './utils'
 import VideoCardAuthorAvatar from './VideoCardAuthor/components/VideoCardAuthorAvatar.vue'
@@ -74,39 +75,79 @@ const videoUrl = computed(() => {
 const isInWatchLater = ref<boolean>(false)
 const isHover = ref<boolean>(false)
 const mouseEnterTimeOut = ref()
-const mouseLeaveTimeOut = ref()
 const previewVideoUrl = ref<string>('')
 const contentVisibility = ref<'auto' | 'visible'>('auto')
 const videoElement = ref<HTMLVideoElement | null>(null)
 
-watch(() => isHover.value, async (newValue) => {
-  if (!props.video || !newValue)
-    return
+let previewRequest: { key: string, promise: Promise<string> } | undefined
+let previewIdentity = ''
 
-  if (props.showPreview && settings.value.enableVideoPreview
-    && !previewVideoUrl.value && (props.video.aid || props.video.bvid)) {
-    let cid = props.video.cid
-    if (!cid) {
-      try {
-        const res: VideoInfo = await api.video.getVideoInfo({
-          bvid: props.video.bvid,
-        })
-        if (res.code === 0)
-          cid = res.data.cid
-      }
-      catch {
+function stopPreview() {
+  clearTimeout(mouseEnterTimeOut.value)
+  isHover.value = false
+  unloadVideoPreview(videoElement.value)
+  releaseVideoPreview(stopPreview)
+}
 
-      }
+watch(
+  [isHover, () => props.video?.bvid || props.video?.aid || props.video?.id, () => props.showPreview, () => settings.value.enableVideoPreview, removed],
+  async (_, __, onCleanup) => {
+    const video = props.video
+    const key = String(video?.bvid || video?.aid || video?.id || '')
+    if (key !== previewIdentity) {
+      previewIdentity = key
+      previewVideoUrl.value = ''
+      previewRequest = undefined
     }
-    api.video.getVideoPreview({
-      bvid: props.video.bvid,
-      cid,
-    }).then((res: VideoPreviewResult) => {
-      if (res.code === 0)
-        previewVideoUrl.value = res.data.durl[0].url
+    if (!isHover.value || !video || !key || !props.showPreview || !settings.value.enableVideoPreview || removed.value)
+      return
+
+    let cancelled = false
+    const stopWhenHidden = () => {
+      if (document.visibilityState === 'hidden')
+        stopPreview()
+    }
+    onCleanup(() => {
+      cancelled = true
+      unloadVideoPreview(videoElement.value)
+      releaseVideoPreview(stopPreview)
+      document.removeEventListener('visibilitychange', stopWhenHidden)
+      window.removeEventListener('blur', stopPreview)
     })
-  }
-})
+    claimVideoPreview(stopPreview)
+    document.addEventListener('visibilitychange', stopWhenHidden)
+    window.addEventListener('blur', stopPreview)
+
+    try {
+      if (!previewRequest || previewRequest.key !== key) {
+        previewRequest = { key, promise: (async () => {
+          let cid = video.cid
+          if (!cid) {
+            const info: VideoInfo = await api.video.getVideoInfo({ bvid: video.bvid, aid: String(video.aid || video.id) })
+            if (info.code !== 0)
+              return ''
+            cid = info.data.cid
+          }
+          const response: VideoPreviewResult = await api.video.getVideoPreview({ bvid: video.bvid, cid })
+          return response.code === 0 ? response.data.durl?.[0]?.url || '' : ''
+        })() }
+      }
+      const url = await previewRequest.promise
+      if (!url && previewRequest?.key === key)
+        previewRequest = undefined
+      if (!cancelled && isHover.value)
+        previewVideoUrl.value = url
+    }
+    catch {
+      if (previewRequest?.key === key)
+        previewRequest = undefined
+    }
+  },
+)
+
+watch(videoElement, (_, previous) => unloadVideoPreview(previous))
+onBeforeUnmount(stopPreview)
+onDeactivated(stopPreview)
 
 function toggleWatchLater() {
   if (!props.video)
@@ -139,6 +180,7 @@ function toggleWatchLater() {
 }
 
 function handleMouseEnter() {
+  clearTimeout(mouseEnterTimeOut.value)
   props.video && setActivatedCover(`${removeHttpFromUrl(props.video.cover)}@672w_378h_1c_!web-home-common-cover`)
 
   // fix #789
@@ -146,13 +188,11 @@ function handleMouseEnter() {
   if (settings.value.hoverVideoCardDelayed) {
     mouseEnterTimeOut.value = setTimeout(() => {
       isHover.value = true
-      clearTimeout(mouseLeaveTimeOut.value)
     }, 1200)
   }
   else {
     mouseEnterTimeOut.value = setTimeout(() => {
       isHover.value = true
-      clearTimeout(mouseLeaveTimeOut.value)
     }, 500)
   }
 }
@@ -161,7 +201,7 @@ function handelMouseLeave() {
   contentVisibility.value = 'auto'
   isHover.value = false
   clearTimeout(mouseEnterTimeOut.value)
-  clearTimeout(mouseLeaveTimeOut.value)
+  unloadVideoPreview(videoElement.value)
 }
 
 function handleClick(event: MouseEvent) {
@@ -303,14 +343,12 @@ provide('getVideoType', () => props.type!)
               <video
                 v-if="previewVideoUrl && isHover"
                 ref="videoElement"
-                autoplay muted
+                :src="previewVideoUrl"
+                autoplay muted playsinline preload="none"
                 :controls="settings.enableVideoCtrlBarOnVideoCard"
                 :style="{ pointerEvents: settings.enableVideoCtrlBarOnVideoCard ? 'auto' : 'none' }"
                 pos="absolute top-0 left-0" w-full aspect-video rounded="$bew-radius" bg-black
-                @mouseenter="handleMouseEnter"
-              >
-                <source :src="previewVideoUrl" type="video/mp4">
-              </video>
+              />
             </Transition>
 
             <!-- Ranking Number -->

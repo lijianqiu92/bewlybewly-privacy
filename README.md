@@ -2,9 +2,11 @@
 
 基于 [BewlyBewly/BewlyBewly](https://github.com/BewlyBewly/BewlyBewly) 的个人修改版，用于 Bilibili 界面优化。本项目由 lijianqiu92 独立维护，与原作者及 Bilibili 官方无关联。
 
-当前版本：**0.41.2**。源码基于上游 v0.41.1，提交 `d42143547bf4e9cc6864f227fcbcbd396bbff25b`。保留原作者的 MIT 许可证和版权声明，详见 [LICENSE](LICENSE)。原项目说明见 [README-upstream.md](README-upstream.md)。
+当前版本：**0.41.3**。源码基于上游 v0.41.1，提交 `d42143547bf4e9cc6864f227fcbcbd396bbff25b`。保留原作者的 MIT 许可证和版权声明，详见 [LICENSE](LICENSE)。原项目说明见 [README-upstream.md](README-upstream.md)。
 
 ## 本版改动
+
+0.41.3 优化悬停视频预览：复用正在进行的请求，同一页面只保留一个活动预览，移出卡片、切换页面或窗口失焦时停止预览并主动释放媒体资源。详见 [CHANGELOG.md](CHANGELOG.md)。
 
 - 修复将“正在关注”作为首页时的重复加载和闪烁。
 - 视频页默认宽屏，使用类似 YouTube 影院模式的布局；标题和 UP 主信息移到播放器下方。

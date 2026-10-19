@@ -38,8 +38,10 @@ function writeManifest() {
   execSync('npx esno ./scripts/manifest.ts', { stdio: 'inherit' })
 }
 
-fs.ensureDirSync(r(isFirefox ? 'extension-firefox' : isSafari ? 'extension-safari' : 'extension'))
-fs.copySync(r('assets'), r(isFirefox ? 'extension-firefox/assets' : isSafari ? 'extension-safari/assets' : 'extension/assets'))
+const extensionDir = r(isFirefox ? 'extension-firefox' : isSafari ? 'extension-safari' : 'extension')
+fs.ensureDirSync(extensionDir)
+fs.copySync(r('assets'), `${extensionDir}/assets`)
+fs.copySync(r('LICENSE'), `${extensionDir}/LICENSE`)
 writeManifest()
 
 if (isDev) {
