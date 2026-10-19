@@ -1,0 +1,195 @@
+#bilibili-player .bew-theater-danmaku-toggle {
+  display: none;
+}
+
+// Apply the same geometry to the initial skeleton and the native wide player.
+html.bew-theater-pending,
+html.bew-theater-active {
+  --bew-theater-gutter: 24px;
+  --bew-theater-gap: 24px;
+  --bew-theater-sidebar-width: clamp(300px, 30vw, 420px);
+  // Spend the reclaimed sending-bar height on the video, leaving only the
+  // title/UP information row (84px + 12px gap) below the 64px navigation.
+  --bew-theater-player-height: min(
+    calc(var(--bew-theater-width, 100vw) * 0.5625),
+    max(180px, calc(100dvh - 64px - 96px))
+  );
+
+  #app.app-v1 {
+    min-width: 0 !important;
+  }
+
+  .video-container-v1 {
+    display: flex !important;
+    align-items: flex-start !important;
+    column-gap: var(--bew-theater-gap) !important;
+    box-sizing: border-box !important;
+    width: var(--bew-theater-width, 100%) !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 0 var(--bew-theater-gutter) !important;
+    margin: 0 !important;
+  }
+
+  .left-container {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    position: static !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .left-container > #playerWrap {
+    order: -2;
+    position: relative !important;
+    z-index: 1;
+    flex: 0 0 auto !important;
+    width: var(--bew-theater-width, 100vw) !important;
+    max-width: none !important;
+    height: var(--bew-theater-player-height) !important;
+    margin: 0 0 12px calc(-1 * var(--bew-theater-gutter)) !important;
+  }
+
+  #playerWrap > #bilibili-player,
+  #playerWrap > #bilibili-player-placeholder,
+  #bilibili-player > .bpx-docker-major,
+  #bilibili-player .bpx-player-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+  }
+
+  #bilibili-player .bpx-player-video-area {
+    height: 100% !important;
+    background-color: #000 !important;
+  }
+
+  // Follow the player's own control visibility state, without adding listeners.
+  // Hide immediately so the collapsed and expanded timelines never overlap.
+  #bilibili-player .bpx-player-control-entity[data-shadow-show="false"] .bpx-player-shadow-progress-area {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: none !important;
+  }
+
+  &.dark #bilibili-player .bpx-player-shadow-progress-area,
+  &.bili_dark #bilibili-player .bpx-player-shadow-progress-area {
+    height: 1px !important;
+  }
+
+  &.dark #bilibili-player .bpx-player-control-entity[data-shadow-show="true"] .bpx-player-shadow-progress-area,
+  &.bili_dark #bilibili-player .bpx-player-control-entity[data-shadow-show="true"] .bpx-player-shadow-progress-area {
+    opacity: 0.3 !important;
+  }
+
+  #bilibili-player .bpx-player-sending-bar,
+  #bilibili-player-placeholder-bottom {
+    display: none !important;
+  }
+
+  // The sending bar's parent draws a separate #f4f4f4 divider even when the
+  // sending bar is hidden. Remove that divider, not the player's timeline.
+  #bilibili-player .bpx-player-sending-area::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  #bilibili-player-placeholder-top {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  #bilibili-player .bew-theater-danmaku-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 22px;
+    padding: 0 7px;
+    margin: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+
+    svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      pointer-events: none;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: rgb(255 255 255 / 15%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    &[aria-pressed="true"] .bew-danmaku-icon-off,
+    &[aria-pressed="false"] .bew-danmaku-icon-on {
+      display: none;
+    }
+  }
+
+  #bilibili-player .bpx-player-video-wrap video {
+    object-fit: contain !important;
+  }
+
+  .left-container > #viewbox_report {
+    order: -1;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: 84px;
+    padding: 8px 0 !important;
+  }
+
+  .right-container {
+    flex: 0 0 var(--bew-theater-sidebar-width) !important;
+    width: var(--bew-theater-sidebar-width) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-top: calc(var(--bew-theater-player-height) + 12px) !important;
+    margin: 0 !important;
+  }
+
+  .right-container-inner {
+    position: static !important;
+    top: auto !important;
+  }
+
+  .up-panel-container,
+  .up-info-container {
+    height: auto !important;
+    min-height: 84px;
+  }
+
+  // Bilibili already inserts a player-height margin here in native wide mode.
+  // The right column's padding above now provides that offset for the UP card too.
+  #danmukuBox {
+    margin-top: 16px !important;
+  }
+
+  @media (max-width: 900px) {
+    --bew-theater-gutter: 16px;
+    --bew-theater-gap: 16px;
+    --bew-theater-sidebar-width: 280px;
+  }
+}
