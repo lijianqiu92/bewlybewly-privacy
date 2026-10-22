@@ -2,7 +2,9 @@
 
 ## 当前状态
 
-- 个人维护版 0.41.3，基于上游 0.41.1。
+- 个人维护版 0.41.4，基于上游 0.41.1。
+- 0.41.4 移除商店审核指出的多余 tabs 权限。唯一 Tabs API 用途是 tabs.create，无需 tabs 权限；未添加 activeTab。保留 storage、declarativeNetRequest 和现有主机范围。
+- 官方依据：https://developer.chrome.com/docs/extensions/reference/api/tabs
 - 0.41.3 是正式构建，已移除临时性能诊断脚本、选项页面和预览诊断事件。0.41.2 的 r4 为之前版本的最终本地修订。
 - 用户已确认影院布局、弹幕开关和白线修正有效。最终包是否已经在 Chrome 商店发布，需以开发者控制台为准。
 - 此仓库不会同步原 Codex 对话历史，本文记录后续开发所需的关键背景。
