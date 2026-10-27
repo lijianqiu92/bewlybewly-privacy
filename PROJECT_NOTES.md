@@ -2,7 +2,12 @@
 
 ## 当前状态
 
-- 个人维护版 0.41.4，基于上游 0.41.1。
+- 2026-10-27：0.41.5 本地候选版移除 `common-setup.ts` 对 webext-bridge 的唯一引用。用户禁用商店版并加载本地版、重启 Chrome 后，178 秒完整实机追踪未再出现重连函数/runningState 采样，MajorGC 最长 42.265 毫秒，未出现秒级停顿。仍需长期使用观察，不要视为所有卡顿已完全排除或已经提交商店。
+- 本次无丢失追踪捕获页面主线程 37.593 秒 MajorGC，其中 37.568 秒为 `V8.GC_HEAP_EMBEDDER_TRACING_EPILOGUE`。CPU 采样指向 0.41.4 content bundle 第 54 行的 webext-bridge `initIntercoms` 重连回调及其扩展事件分发。
+- 仅为 getCurrentContext 引入的 webext-bridge 5.0.5 会在模块加载时调用 runtime.connect；后台无 onConnect 接收器，断开后立即重连，每次新建 port 监听器。现有 API 通信是独立的 runtime.sendMessage，不依赖 bridge。新代码显式提供应用 context，构建应不再包含 runtime.connect / initIntercoms。
+
+- 个人维护版 0.41.5，基于上游 0.41.1。用户确认暂未感到卡顿并授权准备商店发布；0.41.5 尚未提交商店。
+- 后续权限优化待做：评估 declarativeNetRequestWithHostAccess、收窄主机范围；0.41.5 仅保留之前移除 tabs 的权限变更，不能声称已完成所有权限收缩。
 - 0.41.4 移除商店审核指出的多余 tabs 权限。唯一 Tabs API 用途是 tabs.create，无需 tabs 权限；未添加 activeTab。保留 storage、declarativeNetRequest 和现有主机范围。
 - 官方依据：https://developer.chrome.com/docs/extensions/reference/api/tabs
 - 0.41.3 是正式构建，已移除临时性能诊断脚本、选项页面和预览诊断事件。0.41.2 的 r4 为之前版本的最终本地修订。
