@@ -350,6 +350,7 @@ provide<BewlyAppProvider>('BEWLY_APP', {
     <!-- Dock & RightSideButtons -->
     <div
       v-if="!isInIframe()"
+      class="bewly-side-tools"
       pos="absolute top-0 left-0" w-full h-full overflow-hidden
       pointer-events-none
     >

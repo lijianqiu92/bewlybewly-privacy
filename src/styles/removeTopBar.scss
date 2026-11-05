@@ -41,7 +41,11 @@ html:has(.bpx-player-container:is([data-screen="web"], [data-screen="full"])) {
 }
 
 // This stylesheet is also loaded inside the extension's shadow root.
-.bewly-top-bar {
+.bewly-top-bar,
+.bewly-side-tools {
   visibility: var(--bew-player-top-bar-visibility, visible) !important;
+}
+
+.bewly-top-bar {
   pointer-events: var(--bew-player-top-bar-pointer-events, auto) !important;
 }
