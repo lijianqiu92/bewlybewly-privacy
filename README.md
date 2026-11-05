@@ -2,9 +2,11 @@
 
 基于 [BewlyBewly/BewlyBewly](https://github.com/BewlyBewly/BewlyBewly) 的个人修改版，用于 Bilibili 界面优化。本项目由 lijianqiu92 独立维护，与原作者及 Bilibili 官方无关联。
 
-当前版本：**0.41.5**。源码基于上游 v0.41.1，提交 `d42143547bf4e9cc6864f227fcbcbd396bbff25b`。保留原作者的 MIT 许可证和版权声明，详见 [LICENSE](LICENSE)。原项目说明见 [README-upstream.md](README-upstream.md)。
+当前版本：**0.41.6**。源码基于上游 v0.41.1，提交 `d42143547bf4e9cc6864f227fcbcbd396bbff25b`。保留原作者的 MIT 许可证和版权声明，详见 [LICENSE](LICENSE)。原项目说明见 [README-upstream.md](README-upstream.md)。
 
 ## 本版改动
+
+0.41.6 在网页全屏期间始终隐藏插件顶栏，退出后自动恢复；播放控制栏出现时不会带出插件导航。使用 CSS 自定义属性跨 Shadow DOM 传递状态，不新增定时器或 DOM 监听器，普通宽屏布局不变。
 
 0.41.5 移除仅用于识别运行环境的通信库初始化，修复后台 Port 断开后无延迟重连、积累监听器的问题。原 API 消息通信保持不变。实机复核未再出现此前捕获的数十秒垃圾回收停顿，用户反馈使用中暂未再感到卡顿。
 

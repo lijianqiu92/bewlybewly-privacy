@@ -2,6 +2,14 @@
 
 ## 当前状态
 
+- 2026-11-05：用户确认 0.41.6 r3 有效，授权整理 GitHub 和商店发布。正式包沿用 r3 的相同内容。最终行为是 web/full 期间始终隐藏插件顶栏，退出后恢复；不是跟随控制栏显隐。商店提交状态仍须以控制台为准。
+
+- 0.41.6 r3：用户明确要求网页全屏时始终隐藏插件顶栏，不能随控制栏重现。选择器移除 data-ctrl-hidden 条件，只依赖 data-screen=web/full；退出全屏后恢复顶栏，wide 不受影响。仍保留 r2 的 Shadow DOM CSS 自定义属性传递方式。
+
+- 0.41.6 r2：用户反馈首版无效；现场确认已运行 0.41.6，但顶栏位于 #bewly 的 open shadowRoot。原 CSS 后代选择器无法跨 Shadow DOM，不能直接用 `html:has(...) #bewly .bewly-top-bar`。已改为文档规则给宿主 #bewly 设置两个 CSS 自定义属性，在 Shadow DOM 内由 .bewly-top-bar 消费。当前页面临时注入等价规则后，data-ctrl-hidden=true 时 computed visibility=hidden。修订代码构建完成，待用户重新加载；版本仍为 0.41.6，包名含 r2。
+
+- 2026-11-05：0.41.6 本地候选版修复网页全屏下 Bewly 顶栏遮挡视频。现场番剧页确认 `.bpx-player-container[data-screen="web"][data-ctrl-hidden="true"]`；给 App.vue 的新旧顶栏共同容器添加 bewly-top-bar 类，使用 removeTopBar.scss 的 :has 规则跟随原生控制栏显隐。无需定时器/MutationObserver，不改变 wide 模式。尚待用户加载候选包确认，未提交商店。
+
 - 2026-10-27：0.41.5 本地候选版移除 `common-setup.ts` 对 webext-bridge 的唯一引用。用户禁用商店版并加载本地版、重启 Chrome 后，178 秒完整实机追踪未再出现重连函数/runningState 采样，MajorGC 最长 42.265 毫秒，未出现秒级停顿。仍需长期使用观察，不要视为所有卡顿已完全排除或已经提交商店。
 - 本次无丢失追踪捕获页面主线程 37.593 秒 MajorGC，其中 37.568 秒为 `V8.GC_HEAP_EMBEDDER_TRACING_EPILOGUE`。CPU 采样指向 0.41.4 content bundle 第 54 行的 webext-bridge `initIntercoms` 重连回调及其扩展事件分发。
 - 仅为 getCurrentContext 引入的 webext-bridge 5.0.5 会在模块加载时调用 runtime.connect；后台无 onConnect 接收器，断开后立即重连，每次新建 port 监听器。现有 API 通信是独立的 runtime.sendMessage，不依赖 bridge。新代码显式提供应用 context，构建应不再包含 runtime.connect / initIntercoms。

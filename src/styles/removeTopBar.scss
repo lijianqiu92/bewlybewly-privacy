@@ -28,3 +28,20 @@
     display: none;
   }
 }
+
+// Keep extension navigation out of webpage/fullscreen video entirely.
+// Native player controls remain available, and normal navigation returns on exit.
+html:has(.bpx-player-container:is([data-screen="web"], [data-screen="full"])) {
+  // #bewly is the shadow host. Custom properties cross the shadow boundary;
+  // a document selector targeting its internal top bar cannot cross it.
+  #bewly {
+    --bew-player-top-bar-visibility: hidden;
+    --bew-player-top-bar-pointer-events: none;
+  }
+}
+
+// This stylesheet is also loaded inside the extension's shadow root.
+.bewly-top-bar {
+  visibility: var(--bew-player-top-bar-visibility, visible) !important;
+  pointer-events: var(--bew-player-top-bar-pointer-events, auto) !important;
+}

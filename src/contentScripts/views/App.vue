@@ -372,6 +372,7 @@ provide<BewlyAppProvider>('BEWLY_APP', {
     <!-- TopBar -->
     <div
       v-if="showTopBar"
+      class="bewly-top-bar"
       m-auto max-w="$bew-page-max-width"
     >
       <BewlyOrBiliTopBarSwitcher v-if="settings.showBewlyOrBiliTopBarSwitcher" />
